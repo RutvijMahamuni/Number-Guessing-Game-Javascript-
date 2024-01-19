@@ -1,80 +1,110 @@
 'use strict';
+
 /*
 console.log(document.querySelector('.message').textContent);
-document.querySelector('.message').textContent = 'Correct Number!!!';
-console.log(document.querySelector('.message').textContent);
+document.querySelector('.message').textContent = '🎉 Correct Number!';
 
 document.querySelector('.number').textContent = 13;
-document.querySelector('.score').textContent = 20;
+document.querySelector('.score').textContent = 10;
 
 document.querySelector('.guess').value = 23;
 console.log(document.querySelector('.guess').value);
 */
 
-/*Here we add some action when the button titled 'check' is clicked. In our index, we have two buttons,
-'again' and 'check'. We have assigned the button type='btn *****' to them. The btn is  a more generic class,
-so in order to select the respective button, we go as follows.
-*/
+let secretNumber = Math.trunc(Math.random() * 20) + 1;
+let score = 20;
+let highscore = 0;
 
-// document.querySelector('.check').addEventListener('click', function () {
-//   console.log(document.querySelector('.guess').value);
-// });
-
-/*In the code lines above, we have written the function, but haven't called it anywhere.
-But the JAvascript engine itself takes the function given as the argument and 
-calls it at the mentioned 'click' event. This was just the demo code to explain the 
-working of the function. The actual code is below*/
-
-//Implementing the game logic
-/**The logic of the game is as follwos
- * Player enters a number
- * If that number is lesser/greater than the number decided, the message is diplayed
- * This is repeated until the correct number is guessed.
- * With each uncorrect guess, the preset score of 20 reduces.
- * Once the guess is correct, the score at which it was correctly guessed is recorded as highscore
- * When 'Again' button is hit, the score is reset to 20, while the highscore remians the same
- */
-
-const number = Math.trunc(Math.random() * 20) + 1;
-// document.querySelector('.number').textContent = number;
-/**Math.random(): gives a random number between 0 and 1. To give it a range 
-between 0 and 20, we can multiply the resulting number by 20 
-*Math.trunc(): it removes the numbers after the decimal point and returns a 
-natural number to which we add 1 so that we can cover the entire range from 1 to 20*/
-
-let score = 20; //This is a state variable which holds the value and we store
-//in the code and do not rely only on the DOM
+const displayMessage = function (message) {
+  document.querySelector('.message').textContent = message;
+};
 
 document.querySelector('.check').addEventListener('click', function () {
   const guess = Number(document.querySelector('.guess').value);
-  // console.log(typeof guess);   //To check the type of guess input
-  console.log(guess); //This input we received is a string. But we want a number. So wrap the above code
+  console.log(guess, typeof guess);
 
-  /*Below is the logic tp check whether the number entered in higher/lower/equal to
-  the random generated number */
+  // When there is no input
+  if (!guess) {
+    // document.querySelector('.message').textContent = '⛔️ No number!';
+    displayMessage('⛔️ No number!');
 
-  //If no guess is made
-  if (!guess) document.querySelector('.message').textContent = 'No number!';
-  //When the guess is lesser
-  else if (guess < number) {
-    if (score > 0) {
-      document.querySelector('.message').textContent = 'Try Higher!!';
+    // When player wins
+  } else if (guess === secretNumber) {
+    // document.querySelector('.message').textContent = '🎉 Correct Number!';
+    displayMessage('🎉 Correct Number!');
+    document.querySelector('.number').textContent = secretNumber;
+
+    document.querySelector('body').style.backgroundColor = '#60b347';
+    document.querySelector('.number').style.width = '30rem';
+
+    if (score > highscore) {
+      highscore = score;
+      document.querySelector('.highscore').textContent = highscore;
+    }
+
+    // When guess is wrong
+  } else if (guess !== secretNumber) {
+    if (score > 1) {
+      // document.querySelector('.message').textContent =
+      // guess > secretNumber ? '📈 Too high!' : '📉 Too low!';
+      displayMessage(guess > secretNumber ? '📈 Too high!' : '📉 Too low!');
       score--;
       document.querySelector('.score').textContent = score;
     } else {
-      document.querySelector('.message').textContent = 'YOU LOSE!!';
+      // document.querySelector('.message').textContent = '💥 You lost the game!';
+      displayMessage('💥 You lost the game!');
+      document.querySelector('.score').textContent = 0;
     }
-    //When the guess is higher
-  } else if (guess > number) {
-    if (score > 0) {
-      document.querySelector('.message').textContent = 'Try Lower!!';
-      score--;
-      document.querySelector('.score').textContent = score;
-    } else {
-      document.querySelector('.message').textContent = 'YOU LOST!!';
-    }
-  } else if (guess === number)
-    document.querySelector('.message').textContent = 'Correct!!!!!';
-  document.querySelector('body').style.backgroundColor = '#60b347';
-  document.querySelector('.number').style.width = '30rem';
+  }
+
+  //   // When guess is too high
+  // } else if (guess > secretNumber) {
+  //   if (score > 1) {
+  //     document.querySelector('.message').textContent = '📈 Too high!';
+  //     score--;
+  //     document.querySelector('.score').textContent = score;
+  //   } else {
+  //     document.querySelector('.message').textContent = '💥 You lost the game!';
+  //     document.querySelector('.score').textContent = 0;
+  //   }
+
+  //   // When guess is too low
+  // } else if (guess < secretNumber) {
+  //   if (score > 1) {
+  //     document.querySelector('.message').textContent = '📉 Too low!';
+  //     score--;
+  //     document.querySelector('.score').textContent = score;
+  //   } else {
+  //     document.querySelector('.message').textContent = '💥 You lost the game!';
+  //     document.querySelector('.score').textContent = 0;
+  //   }
+  // }
 });
+
+document.querySelector('.again').addEventListener('click', function () {
+  score = 20;
+  secretNumber = Math.trunc(Math.random() * 20) + 1;
+
+  // document.querySelector('.message').textContent = 'Start guessing...';
+  displayMessage('Start guessing...');
+  document.querySelector('.score').textContent = score;
+  document.querySelector('.number').textContent = '?';
+  document.querySelector('.guess').value = '';
+
+  document.querySelector('body').style.backgroundColor = '#222';
+  document.querySelector('.number').style.width = '15rem';
+});
+
+///////////////////////////////////////
+// Coding Challenge #1
+
+/* 
+Implement a game rest functionality, so that the player can make a new guess! Here is how:
+
+1. Select the element with the 'again' class and attach a click event handler
+2. In the handler function, restore initial values of the score and secretNumber variables
+3. Restore the initial conditions of the message, number, score and guess input field
+4. Also restore the original background color (#222) and number width (15rem)
+
+GOOD LUCK 😀
+*/
